@@ -3,7 +3,6 @@ hide:
   - navigation
 ---
 
-
 # Infrastructure as Code
 
 * Problems with manual configuration
