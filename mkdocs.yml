@@ -1,0 +1,16 @@
+site_name: Notes
+site_url: https://notes.tomondre.com
+theme:
+  features:
+    - navigation.tabs
+    - navigation.tracking
+    - navigation.tabs.sticky
+    - toc.follow
+    - navigation.top
+  hide:
+    - navigation
+  name: material
+
+nav:
+  - Home: ./
+  - Terraform Associate: ./terraform associate
