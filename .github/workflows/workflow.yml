@@ -5,6 +5,8 @@ jobs:
   CreateImage:
     runs-on: ubuntu-latest
     steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
       - name: Install Python
         run: sudo apt install python3
       - name: Install Mkdocs
