@@ -5,6 +5,12 @@ jobs:
   CreateImage:
     runs-on: ubuntu-latest
     steps:
+      - name: Install Python
+        run: apt install python3
+      - name: Install Mkdocs
+        run: apt install mkdocs
+      - build:
+        run: mkdocs build
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
