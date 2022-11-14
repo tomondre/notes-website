@@ -9,7 +9,7 @@ jobs:
         run: apt install python3
       - name: Install Mkdocs
         run: apt install mkdocs
-      - build:
+      - name: Build Mkdocs
         run: mkdocs build
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
