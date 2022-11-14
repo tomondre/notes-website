@@ -2,7 +2,7 @@ name: GitHub Actions Demo
 run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
 on: [push]
 jobs:
-  CreateImage:
+  CI:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
@@ -11,6 +11,8 @@ jobs:
         run: sudo apt install python3
       - name: Install Mkdocs
         run: sudo apt install mkdocs
+      - name: Install MkDocs Material
+        run: pip install mkdocs-material
       - name: Build Mkdocs
         run: mkdocs build
       - name: Set up QEMU
@@ -28,8 +30,9 @@ jobs:
           push: true
           tags: tomondre/notes-page:${{ github.run_number }}
 
-  Explore-GitHub-Actions:
+  CD:
     runs-on: self-hosted
+    needs: CI
     steps:
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
       - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
