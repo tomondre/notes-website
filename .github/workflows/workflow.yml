@@ -39,8 +39,8 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v3
       - name: Terraform Initialize
-        working-directory: ./infrastructure
+        working-directory: infrastructure
         run: terraform init
       - name: Terraform apply
-        working-directory: ./infrastructure
+        working-directory: infrastructure
         run: terraform apply -auto-approve -var "image_tag={{ github.run_number }}"
