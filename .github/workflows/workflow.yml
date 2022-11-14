@@ -6,9 +6,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install Python
-        run: apt install python3
+        run: sudo apt install python3
       - name: Install Mkdocs
-        run: apt install mkdocs
+        run: sudo apt install mkdocs
       - name: Build Mkdocs
         run: mkdocs build
       - name: Set up QEMU
