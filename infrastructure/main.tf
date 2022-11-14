@@ -7,4 +7,5 @@ module "notes_page" {
   port              = 80
   image_tag         = var.image_tag
 }
+
 variable "image_tag" {}
