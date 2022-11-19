@@ -42,7 +42,7 @@ jobs:
         working-directory: infrastructure
         run: terraform init
       - name: Set-up kube config
-        run: echo ${{ secrets.KUBE_CONFIG }} > ~/kubeconfig.yaml
+        run: echo "${{ secrets.KUBE_CONFIG }}" > ~/kubeconfig.yaml
       - name: Terraform apply
         working-directory: infrastructure
         run: terraform apply -auto-approve -var "image_tag={{ github.run_number }}"
