@@ -40,8 +40,7 @@ jobs:
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       KUBE_CONFIG_PATH: ~/kubeconfig.yaml
-      TERRAFORM_TOKEN: ${{ secrets.TERRAFORM_TOKEN }}
-
+      TF_TOKEN_app_terraform_io: ${{ secrets.TERRAFORM_TOKEN }}
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
