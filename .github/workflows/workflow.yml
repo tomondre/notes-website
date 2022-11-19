@@ -49,3 +49,4 @@ jobs:
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+
