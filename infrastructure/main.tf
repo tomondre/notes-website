@@ -1,3 +1,14 @@
+terraform {
+  cloud {
+    organization = "raspberry-kubernetes-cluster"
+
+    workspaces {
+      tags = ["tomondre-notes-website"]
+    }
+  }
+}
+
+
 module "notes_page" {
   source            = "git::https://github.com/tomondre/raspberry-kubernetes-cluster.git//terraform-modules/reusable-modules/full-deployment"
   service_name      = "notes-page"
