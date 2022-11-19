@@ -35,6 +35,11 @@ jobs:
   CD:
     runs-on: self-hosted
     needs: CI
+    env:
+      DOCKERHUB_USERNAME: { { secrets.DOCKERHUB_USERNAME } }
+      DOCKERHUB_TOKEN: { { secrets.DOCKERHUB_TOKEN } }
+      CLOUDFLARE_API_TOKEN: { { secrets.CLOUDFLARE_API_TOKEN } }
+      KUBE_TOKEN: { { secrets.KUBE_TOKEN } }
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
