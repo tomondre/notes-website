@@ -41,6 +41,8 @@ jobs:
       - name: Terraform Initialize
         working-directory: infrastructure
         run: terraform init
+      - name: Set-up kube config
+        run: echo ${{ secrets.KUBE_CONFIG }} > ~/.kube/kubeconfig.yaml
       - name: Terraform apply
         working-directory: infrastructure
         run: terraform apply -auto-approve -var "image_tag={{ github.run_number }}"
@@ -48,5 +50,5 @@ jobs:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+          KUBE_CONFIG_PATH: ~/.kube/kubeconfig.yaml
 
