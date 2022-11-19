@@ -50,5 +50,6 @@ jobs:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          TERRAFORM_TOKEN: ${{ secrets.TERRAFORM_TOKEN }}
           KUBE_CONFIG_PATH: ~/kubeconfig.yaml
 
