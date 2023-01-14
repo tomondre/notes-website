@@ -122,3 +122,125 @@ Moving objects can be automated via Lifecycle Rules.
 ## Amazon Aurora
 * Compatible API for PostgreSQL / MySQL, separation and compute
 * Storage data is stored in 6 replicas across 3 AZ - highly available, self-healing, auto-sclaing
+* Compute: Cluster of DB instance across multiple AZ, auto-scaling of Read Replicas
+* Cluster: Custom endpoints for writer and reader DB instances
+* Same security / monitoring / maintenance features as RDS
+* Know the backup & restore options for Aurora
+* Aurora Serverless - unpredictable / intermittent workloads, no capicity planning
+* Aurora Multi-Master - for continous writes failover - high write availability
+* Aurora Global - up to 16 DB read Instances in each region < 1 second storage replications
+* Aurora Machine Learning - perform ML using SageMaker & Comprehend on Aurora
+* Aurora Database Cloning - new cluster from existing one, faster than restoring a snapshot
+* Use Case - same as RDS, but with less maintenance / more flexibility / more performance / more features
+
+## Amazon ElastiCache
+* Managed Redis / Memcached
+* In-memory data store, sub-milisecond latency
+* Must provision an EC2 insatnce type
+* Support for Clustering (Redis) and Multi AZ, Read Replicas (sharding)
+* Security through IAM, Security Groups, KMS, Redis Auth
+* Backup / Snapshot / Point in time restore feature
+* Managed and scheduled maintenance
+* Requires some application code changed to be leveraged
+* Use cases
+	* Key/Value store
+	* Frequent reads
+	* Less writes
+	* Cache results for DB queries
+	* Store Sessiona data forwebsites, cannot use SQL
+
+## DynamoDB
+* Proprietary technology, managed serverless NoSQL database, milisecond latency
+* Capacity modes: provisioned capacity with optional auto-scaling or on-demand capacity 
+*  Can replace ElastiCache as a key/value store - storing data for example using TTL feature
+* Highly Available, Multi AZ by default, Read and Writes are decoupled, transaction capability
+* DAX cluster for read cache, microsecond read latency
+* Security, authentication and authorization is done through IAM
+* Event Processing: DynamoDB Streams to integrate with AWS Lambda, or Kinesis Data Streams
+* Global Table feature: active-active setup
+* Automated backup up to 35 days with PITR - resotre to new table or on-demand backups
+* Export to S3 without using RCU withing PITR window, import from S3 without using WCU
+* Great to rapidly evolve schemas
+* Use case
+	* Serverless applications development - small couments
+	* Distributed serversless cache
+	* No SQL query language available
+
+## S3
+* Key/value store for objects
+* Great for bigger objects, not so great for many small objects
+* Serverless, scales infinitely,, max object size is 5 TB, versioning capability
+* Tiers: S3 Standard, S3 Infrequent Access, S3 Intelligent, S3 Glacier + lifecycle policy
+* Features: Versioning, Encryption, Replication, MFA-Delete, Access Logs
+* Security: IAM, Bucket Policies, ACL, Access Points, Object Lambda, CORS, Object/Vault Lock
+* Encryption: SSE-S3, SSE-KMS, SSE-C, client-side, TLS in transit, default encryption
+* Batch operations on objects using S3 Batch, listing files using S3 inverntory
+* Performance: multi-part upload, S3 transfer acceleration, s3 select
+* Automation: S3 Event Notifications (SNS, SQS, Lambda, EventBrisge)
+* Use cases: static files, key value store for big files, website hosting
+
+## DocumentDB
+* DocumentDB is the same for MongoDB - which is a NoSQL database
+* MongoDB is used to store, query and index JSON data
+* Similar deployment concepts as Aurora
+* DocumentDB storage automatically grows increments of 10GB up to 64TB
+* Automatically scales to workload with millions of requests per seconds
+
+## Amazon Neptune
+* Fully managed graph database
+* A popular graph dataset would be a social network
+	* Users have friends
+	* Posts have comments
+	* Commnents have likes from users
+	* Users share and like posts
+* Highly available across 3 AZ, with up to 15 read replicas
+* Build and run applications working with higly connected datasets - optimized for these complex and hard queries
+* Can store up to billions of relations and query the graph with millisecond latenct
+* Highly available with replications across multiplem AZs
+* Great for knowledge graphs, fraud detection, recommendation engines, social networking
+
+## Amazon Keyspaces
+* Managed Apache Cassandra Service - open-source NoSQL distributed database
+* Serverless, Scalable, Highly Available, Fully managed by AWS
+* Automatically scale tables up/down based on the application's traffic
+* Tables are replicated 3 times across multiple AZ
+* Using the Cassandra Query Language (CQL)
+* Single-digit millisecond latency at any scale, 1000s of requests per second
+* Capacity: On-demand mode or provisioned mode with auto-scaling
+* Encryption, backup, Point-In-Time Recovery (PITR) up to 35 days
+* Use cases: store IoT devices info, time-series data
+
+## Amazon QLDB
+* QLDB stand for Quantum Ledger Database
+* A ledger is a book recording financial transactions
+* Fully Managed, Serverless, High Available, Replication across 3 AZ
+* Used to review the history of all the changes made to your application
+* Immutable system: no entry can be removed or modified, cryptographically verifiable
+*  2-3x better performance than common ledger blockchain frameworks, manipulate data SQL
+* The difference with Amazon Managed Blockchain component, in accordance with financial regulation rule 
+
+## Amazon Timestream
+* Fully managed, fast, scalable serverless time series database
+* Automatically scales up/down to adjust capacity
+* Store and analyse trillions of events per day
+* 1000s time faster & 1/10th the cost of SQL compatibility
+* Data storage tiering: recent data kept in memory and historical data kept in a cost-optimized
+* Built-in time series analytics function - helps to identify patterns in data in near real-time
+* Encryption in transit and at rest
+* Use cases:
+	* IoT apps
+	* Operational applications
+	* Real-time analytics
+* Architecture
+	* Inputs
+		* AWS IoT
+		* Kinesis Data Streams
+		* Prometheus
+		* Telegraf
+		* Kinesis Data Streams
+		* Amazon MSK
+	*  Outputs
+		* Amazon QuickSight
+		* Amazon SageMaker
+		* Grafana
+		* Any JDBC connection
