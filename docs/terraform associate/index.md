@@ -3,7 +3,9 @@ hide:
   - navigation
 ---
 
-# Infrastructure as Code
+# AWS Cloud Practicioner
+
+## Infrastructure as Code
 
 * Problems with manual configuration
       - Allows easily starts 

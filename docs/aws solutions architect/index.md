@@ -1,7 +1,13 @@
+---
+hide:
+ - navigation
+---
 
-# S3
+# AWS Solutions Architect
 
-## Lifecycle rules
+## S3
+
+### Lifecycle rules
 
 Transition between storage classes
 
@@ -33,13 +39,13 @@ Moving objects can be automated via Lifecycle Rules.
 * 24 to 48 hours to start seeing data analysis
 * Good first step to put together lifecycle rules (or improve them)
 
-## Request Pays
+### Request Pays
 * In general, bucket owner pay for all Amazon S3 storage and data transfer, costs associated with their bucket
 * With Requester pays buckets, the requester instead of the bucket owner pays the cost opf the request and the data download from the bucket
 * Helpful when you wsan tto share large datasets with other accounts
 * The requester must be authenticated - cannot be anonymous
 
-## Event Notifications
+### Event Notifications
 * Use case - generate thumbails of images uploaded to S3
 * Can create as many s3 events as desired
 * S3 event notifications typically deliver events in seconds but can take a minute or longer
@@ -49,7 +55,7 @@ Moving objects can be automated via Lifecycle Rules.
 	3. Lambda Functions
 	4. Event Bridge - allows to send the events to over 18 aws services as destinations
 
-## Performance
+### Performance
 * Baseline - automatically scales to high requests rates, latency 100 - 200 ms
 * Applications can achieve at least 3500 PUT/COPY/POST/DELETE and 5500 GET/HEAD requests per second per prefix in a bucket
 * No limit to the number of prefixes in a bucket
@@ -81,7 +87,7 @@ Moving objects can be automated via Lifecycle Rules.
 		* S3 Inventory can be used to get object list and use s3
 
 
-# Databases
+## Databases
 * How to choose
 	* Question to choose the right database based on architecture
 		* Is it read-heavy, write-heavy or balanced workload
@@ -90,7 +96,7 @@ Moving objects can be automated via Lifecycle Rules.
 		* Data durability? Source of truth for the data?
 		* Query model? - joins, structured data, semi-structured
 		* License costs?
-## Types
+### Types
 * RDBMS - RDS, Aurora - great for joins
 * NoSQL - DynamoDB, ElsatiCache, Neptune, DocumentDB, Keyspaces - no joins, no SQL
 * Object Store - S3 for bigger objects or Glacier for backups
