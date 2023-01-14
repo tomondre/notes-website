@@ -13,5 +13,6 @@ theme:
 
 nav:
   - Home: ./
-  - Terraform Associate: ./terraform associate
+  - HashiCorp Terraform Associate: ./terraform associate
   - AWS Cloud Practicioner: ./aws cloud practicioner
+  - AWS Solutions Architect: ./aws solutions architect
