@@ -3,6 +3,24 @@ hide:
  - navigation
 ---
 
+#### TODO Learn:
+* AWS Firewall manager
+* AWS Shield advanced
+* Amazon Kendra
+* Amazon Polly
+* Amazon Fraud Detector
+* AWS Control Tower
+* AWS Resource Access Manager
+* Application Migration Service
+* AWS EC2 Scaling Types
+* Amazon WorkDocs
+* AWS Directory Service
+* AWS Transfer for SFTP
+* Redshift Spectrum
+* AWS X-ray
+* Symetric and Assymetric keys
+* AWS DynamoDB partition keys
+
 # AWS Solutions Architect
 
 ## S3
@@ -244,3 +262,77 @@ Moving objects can be automated via Lifecycle Rules.
 		* Amazon SageMaker
 		* Grafana
 		* Any JDBC connection
+
+## AWS Security & Encryption
+###  Encryption in flight - SSL
+* Data is encrypted before sending and decrypted after receiving
+* SSL certificates help with encryption - HTTPS
+* Encryption in flight ensures no MITM can happen
+### Server-side encryption at rest
+* Data is encrypted after being received by the server
+* Data is decrypted before being sent
+* It is stored in an encrypted form thanks to a key - usually a data key
+* The encryption / decryption key must be managed somewhere and the server must have access to it
+### Client-side encryption
+* Data is encrypted by the client and never decrypted by the server
+* Data will be decrypted by a receiving client
+* The server should not be able to decrypt the data
+* Could leverage Envelope Encryption
+
+## AWS KMS
+* AWS Manages encryption keys for us
+* Fully integrated with IAM for authorization
+* Easy way to control access to our data
+* Able to audit KMS key usage using CloudTrail
+* Seamlessly integrated into most AWS services - EBS, S3, RDS, SSM
+* Never store secrets in plaintext, especially in the code
+	* KM Key Encryoption also available through API calls - SDK, CLI
+	* Encrypted secrets can be stored in the code / environment  variables 
+* KMS Key Types
+	* Symmetric
+		* Single encryption key that is used to Encrypt and Decrypt
+		* AWS Services that are integrated with KMS use symmetric CMKs
+		* We never ger access to the KMS Key unencrypted - must call KMS API to use
+	* Asymetric
+		* Public (Encrypt) and private (Decrypt) pair
+		* Used for Encrypt/Decrypt or Sign/Verify operations
+		* The public key is downloadable, but we can't access the private key unencrypted
+		* User case - encryption outside of AWS by users who can't call the KMS API
+* Three types
+	* AWS Managed Key - free (aws/service-name, example: aws/rds or aws/ebs)
+	* Customer Managed Keys - created in KMS - $1
+	* Customer Managed Keys imported - must be 256-bit symmetric key - 1$ / month
+* Pay  for API call to KMS - $0.03 / 10000 calls
+* Automatic Key rotation
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Incorrect practice questions
+![[Pasted image 20230120145907.png]]
+![[Pasted image 20230120150034.png]]
+![[Pasted image 20230120150255.png]]
+![[Pasted image 20230120152527.png]]
+![[Pasted image 20230120152931.png]]
+![[Pasted image 20230120153049.png]]
+![[Pasted image 20230120153257.png]]
+![[Pasted image 20230120153538.png]]
+![[Pasted image 20230120154828.png]]
+![[Pasted image 20230120154958.png]]
+![[Pasted image 20230120155141.png]]
+![[Pasted image 20230120155158.png]]
+![[Pasted image 20230120155353.png]]
+![[Pasted image 20230120161750.png]]
