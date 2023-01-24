@@ -3,31 +3,13 @@ hide:
  - navigation
 ---
 
-#### TODO Learn:
-* AWS Firewall manager
-* AWS Shield advanced
-* Amazon Kendra
-* Amazon Polly
-* Amazon Fraud Detector
-* AWS Control Tower
-* AWS Resource Access Manager
-* Application Migration Service
-* AWS EC2 Scaling Types
-* Amazon WorkDocs
-* AWS Directory Service
-* AWS Transfer for SFTP
-* Redshift Spectrum
-* AWS X-ray
-* Symetric and Assymetric keys
-* AWS DynamoDB partition keys
-
 # AWS Solutions Architect
 
 ## S3
 
 ### Lifecycle rules
 
-Transition between storage classes
+The transition between storage classes
 
 Classes
 1. Standard
@@ -304,35 +286,628 @@ Moving objects can be automated via Lifecycle Rules.
 	* Customer Managed Keys imported - must be 256-bit symmetric key - 1$ / month
 * Pay  for API call to KMS - $0.03 / 10000 calls
 * Automatic Key rotation
+	* AWS-Managed KMS Key - automatic every 1 year
+	* Customer-managed KMS Key - must be enabled for 1 rotation every 1 year
+	* Imported KMS Key - only manual rotation, possible using alias
+* Copying snapshots across regions
+* Key policies
+	* Control access to KMS keys, similar to S3 bucket policies
+	* Difference - you cannot control access without them
+	* Default KMS Key Policy
+		* Created if you don't provide a specfic KMS Key policy
+		* Complete access to the key to the root user - entire AWS accoun
+	* Custom KMS Key policy
+		* Define users, roles that can access the KMS key
+		* Define who can administed the key
+		* Useful for cross-account access to KMS key
+### Multi-Region keys
+* Have Primary key in one region and replicate it to other AWS regions - key id is the same
+* Set of KMS keys in different AWS regions that can be used interchangeaby
+* Multi-Region keys have the same key ID, key materual, automatic rotation
+* Encrypt in one Region and decrypt in other regions
+* No need to re-encrypt or making cross-region API calls
+* KMS Multi-Region are NOT global
+* Each Multi-Region key is managed independently
+* Use cases - global client-side encryption, encryption on Global DynamoDB, Global Aurora
+### S3 Replication Encryption Considerations
+* Unecrypted objects and objects encrypted with SSE-S3 are replicated by default
+* Objects encrypted with SSE-C - custmer procuided are never replicated
+* For objects encrypted with SSE-KMS, you need to enable the option
+	* Specify which KMS Key to encrypt the object within the target bucket
+	* Adapt the KMS Key Policy for the target key
+	* An IAM Role with kms:Decrypt for the source KMS Key and kms:Encrypt for the target KMS key
+
+## SSM Parameter Store
+* Secure storage configuration and secrets
+* Optional Seamless encryption using KMS
+* Serverless, scalable, durable, easy SDK
+* Version tracking of configurations / secrets
+* Security through IAM
+* Notifications with Amazon EventBridge
+* Integration with CloudFormation
+* Standard Tier 
+	* Total number of parameter allowed - per AWS region -  10 000
+	* Maximum size of parameter value - 4 KB
+	* Parameter policies available - no
+	* Cost - no additional charge
+* Advanced tier
+	* Total number of parameter allowed - per AWS region - 100 000
+	* Maximum size of parameter value - 8 KB
+	* Parameter policies available - yes
+	* Cost - charges apply
+### Parameters Policies
+* Allow to assign a TTL to a parameter to force updating or deleting sensitive data such as apassword
+* Can assign multiple policies at a time
+
+## AWS Secrets Manager
+* Newer service, meant for storing secrets
+* Capability to force rotation of secrets every X days
+* Automate generation of secrets on rotation - uses Lambda
+* Integration with Amazon RDS - MySQL, PostgresSQL, Aurora
+* Secrets are encrypted using KMS
+* Mostly meant for RDS integration
+### Multi-Region Secrets
+* Replicate Secrets across multiple AWS regions
+* Secrets Manager keeps read replicas in sync with the primary Secrets
+* Use cases: multi-region apps, disaster recovery strategies, multi-region DB
+
+## AWS Certificate Manager - ACM
+* Easily provision, manage, and deploy TLS Certificates
+* Provide in-flight encryption for websites - HTTPS
+* Free of charge for public TLS certificate renewal
+* Integrations with
+	* Elastic Load Balancers
+	* CloudFront Distributions
+	* APIs on API Gateway
+* Cannot use ACM with EC2
+### Requesting Public Certificates
+1. List domain names to be included in the certificate
+	* Fully Qualified Domain Name: corp.example.com
+	* Wildcard Domain \*.example.com
+2. Select validation method: DNS Validation or email validation
+	* DNS Validation is preferred for automation purposes
+	* Email validation will send emails to contact adresses in the WHOIS database
+	* DNS Validation will leverage a CNAME record to DNS config
+3. It will take a few hours to get verifies
+4. The public Certificate will be enrolled for automatic renewal
+	* ACM automatically renews ACM-generated certificates 60 days before expoiry
+### Importing public certificates
+* OPtion to generate the certificate outside of ACM and then import it
+* No automatic renewal - must import a new certificate before expiry
+* ACM sends daily expiration events starting 45 days prior to expiration
+	* The number of days can be configured
+	* Events are appearing in EventBridge
+* AWS Config has a managed rule named *acm-certificate-expiration-check* to check for expiring certificates
+
+## AWS WAF
+* Protects web applications from common web exploits - layer 7
+* Layer 7 is HTTP
+* Deploy on Application Load Balancer
+* API Gateway
+* CloudFront
+* AppSync  GraphQL
+* Cognito User Pool
+* Web ACL Rules
+	* IP set: up to 10000 IP addresses - use multiple Rules for more IP's
+	* HTTP headers, HTTP body or URI strings protects from common attack - SQL injection, cross-site scripting
+	* Size constraints, geo-match - block countries
+	* Rate-based rules for DDoS protection
+* Web ACL are regional except for CloudFront
+* A rule group is a reusable set of rules that we can add to a web ACL
+* WAF does not support the Network Load Balancer
+
+## AWS Shield
+* Protect from DDoS attack
+* Distributed Denial of Service - many requests at the same time
+* AWS Shield Standard
+	* Free service that is activated for every AWS customer
+	* Provides protection from attacks such as SYN/UDP floods, reflection attacks and 
+	* other layer
+* AWS Shield Advanced
+	* Optional DDoS mitigation service - 3000 per month per organization
+	* Protect against more sophisticated attack on Amazon EC2, ELB, Amazon Cloudfront, AWS Global Accelerator and Route 53
+	* 24/7 access to AWS DDoS response team
+	* Protect against higher fees furing usage spikes due to DDoS
+	* Shield advance automatic application layer DDoS mitigation automatically creates, evaluates adn deploys AWS WAF rils to mitigate layer 7 attacks
+
+## AWS Firewall Manager
+* Manage rules in all accounts of an AWS Organization
+* Security policy - common set of security rules
+	* WAF rules - ALB, API GW, CF
+	* AWS Shield Advanced - ALB, CLV, NLB, E IP, CF
+	* Security Groups for EC2
+	* AWS Network Firewall - vpc level
+	* Amazon Route 53 Resolver DNS Firewall
+	* Policies are created at the region level
+* Rules are applied to new resources as they are created across all and future accounts in organization - good for compliance
+
+## Amazon GuardDuty
+* IntelligentThreat discovery to protect AWS account
+* Uses Machine Learning algorithms, anomaly detection, 3rd party data
+* One click to enable 30 days trial, no need to install software
+* Input data includes
+	* Cloudtrail Events Logs - unusual API calls, unathorized deployments, create VPC subnet, create trail
+	* VPC Flow Logs - unusual internet traffic, unusual IP address
+	* DNS Logs - compomised EC2 instances sending encoded data within DNS queries
+	* Kubernetes Audit Logs - suspicious activities and potentional EKS cluster compromises
+* Can setup EventBridge riles to be notified in case of findings
+* EvenBrudge rules can target AWS Lambda or SNS
+* Can protect against CryptoCurrency attacks - had a dedicated finding for it
+
+## Amazon Inspector
+* Automated Security Assesments
+* For EC2 instances
+	* Leveraging the AWS System Manager agent
+	* Analyze against unintended network accessibility
+	* Analyze the running OS against known vulnerabilities
+* For container images push to Amazon ECR
+	* Assessment of container images as they are pushed
+* For Lambda functions
+	* Identifies software vulnerabilities in function code and package dependencies
+	* Assesment of functions as they are deployed
+* Reporting & Integration with AWS Security Hub
+* Send findings to Amazon Event Bridge
+### What is evaluated
+* Only for EC2 Instances, container images, lambda functions
+* Countinuous scanning of the infrastructure, only when needed
+* Package vulnerability - ec2, ecr & lambda - database of CVE
+* Network reachability - ec2
+* A risk score is associated with all vulnerabilities for prioritization
+
+## Amazon Macie
+* Fully managed data security and data privacy service that uses machine learning and pattern matching to discover and protect sensitive data in AWS
+* Macie Helps identify and alert you to sensitive data such as personally identifiable information - PII
+
+## Amazon Rekognition
+* Find objects, people, text scenes in images and videos using ML
+* Facial analysis and facial search to do user verification, people counting
+* Create a database of familiar faces or compare against celebrities
+* Use cases
+	* Labeling
+	* Content moderation
+	* Text Detection
+	* Face detection and analysis - gender, age range, emotions
+	* Face search and verification
+	* Celebrity recognition
+	* Pathing
+### Content moderation
+* Detect content that is inappropriate, unwanted or offensive
+* Used ion social media, broadcast media, advertising and e-commerce situations to create a safer user experience
+* Set a minimum confidence threshold for items that will be flagged
+* Flag sensitive content for manual review in Amazon Augmented AI
+* Helps to comply with regulations
+
+## Amazon Transcribe
+* Automatically convert speech to text
+* Uses a deep learning process called automatic speech recognition to convert speech to text quickly and accuretely
+* Automatically remove PII using redaction
+* Support automatic language identification for multi-lingual audio
+* Use cases:
+	* transcribe customer service calls
+	* Automate closed captioning and subtitling
+	* Generate metadata for media assets to create a fully searchable archive
+
+## Amazon Polly
+* Turn text into lifelike speech using deep learning
+* Allowing you to create applications that talk
+### Lexicon & SSML
+* Customize the pronunciation of word with pronunciation lexicons
+	* Acronym: AWS => Amazon Web Services
+* Upload the lexicons and use them in the SynthesizeSpeech operation
+* Generate speech from plain text or from documents marked up with speech synthesis markup language - enables more customisation
+	* Emphasizing specific words or phrases
+	* Using phonetic pronunciation
+	* Including breathing sounds, whispering
+	* Using the Newcaster speaking style
+
+## Amazon Translate
+* Natural and accurate language translation
+* Amazon Translate allow to localise content - such as websites and applications - for international users and to easily translate large volumes of text efficiently
+
+## Amazon Lex & Connect
+* Amazon Lex - same technology that powers Alexa
+	* Automatic speech recognition to convert speech to text
+	* Natural language understanding to recognise the intent of the text, callers
+	* Helps build chatbots, call centre bots
+* Amazon Connect
+	* Receive calls, create content flows, cloud-based virtual content center
+	* Can integrate with other CRM systems or AWS
+	* No upfront payments 80 percent cheaper than traditional contact center solutions
 
 
+## Amazon Comprehend
+* For Natural Language Processing - NLP
+* Fully maanged and serverless service
+* Uses machine learning to find insights and relationships in text
+	* Language of the text
+	* Extracts key phrases, places, people, brands or events
+	* Understands how positive or negative the text is
+	* Analyzes text using tokenizations and parts of speech
+	* Automatically organizes a collection of text files by topic
+* Example use-cases
+	* Analyze customer interactions (emails) to find what leads to positive or negative experience
+	* Creating and grouping articles by topics that comprehend will uncover
 
+## Amazon Comprehend Medical
+* Detects and returns useful information in unstructured clinical text
+	* Physician' notes
+	* Discharge summaries
+	* Test results
+	* Case notes
+* Uses NLP to detect protected health information
+* Store documents in Amazon S3, analyze real-time data with Kinesis Data Firehose or use Amazon Transcribe patient narratives into text that can be analyzed by Amazon Comprehend Medical
 
+## Amazon SageMaker
+* Fully managed service for developers/data scientists to build ML models
+* Typically difficult to do all the processes in one place + provision servers
+* Machine learning process - predicting exam score
+* Steps
+	* Input data
+	* Label it
+	* Build ML model
+	* Train and tune over time
 
+## Amazon Forecast
+* Fully managed service that uses ML to deliver highly accurate forecasts
+* Example: predict the future of sales of raincoat
+* 50 percent more accurate than looing at the data itself
+* Reduce forecasting time from months to hours
 
+## Amazon Kendra
+* Fully managed document search service powered by Machine Learning
+* Extract answers from withing a document - text, pdf, HTML, PowerPoint, MS Word, FAQs
+* Natural language search capabilities
+* Learn from user interactions/feedback to promote preffered results - incremental learning
+* Ability to manuall fine-tune search result - importance of data, freshness, custom,...
 
+## Amazon Personalize
+* Fully managed ML-service to build apps with real-time personalized recommendations
+* Example - personalized product recommendations/re-ranking, customized direct marketing
+* Same technology used by Amazon.com
+* Integrated into existing websites, applications, SMS, email marketing systems
+* Implement in days, not months - no need to build, train and deploy ML solutions
+* Use cases: retail stores, media and entertainment
 
+## Amazon Textract
+* Automatically extracts text, handwriting, and data from any scanned documents using AI and ML
+* Extract data from forms and tables
+* Read and process any type of document
+* Use cases
+	* Financial services
+	* Healthcare
+	* Public sector
 
+## AWS Config
+* Helps with auditing and recording compliance of AWS resources
+* Helps record configurations and changes ocer time
+* Questions that can be solved by AWS Config
+	* Unrestricted SSH access to SG?
+	* Does buckets have public access
+	* How ALM configuration changed over time
+* Alerts can be received for any changes
+* Config is per-region service
+* Data can be aggregated across regions and accounts
+* Possibility of storing configuration data in s3 - and queried by AWS Athena
+* AWS Config Rules does not prevent acions from happening - no deny
+* Pricing
+	* No free tier, 0.003 per configuration item revorded per region
+	* 0.001 per config rule evaluation per region
+* Config resource - compliance, configuration and cloudtrail API call over time
+### Config Rules Notifications
+* Use EventBridge to trigger notifications when AWS resources are non-compliant
+* Ability to send configuration changed and compliance state notifications to SNS 
 
+## AWS Storage Gateway
+* Bridge between on-premises data and cloud data
+* Use cases
+	* Disaster recovery
+	* Backup & restore
+	* Tiered storage
+	* On-premises cache & low latency files access
+	* Types of Storage Gateway
+* Types
+	* S3 File Gateway
+		* Sits in on-premise and can be connected to via NFS or SMB
+		* Creates HTTPS requests to s3
+		* Most recently used data is cached in the file gateway
+		* Trainsition to S3 Glacer using lifecycle policy
+		* Bucket access using IAM roles for each Gile Gateway
+		* Integration with Active Directory for user authentication
+	* FSx File Gateway
+		* Native access to Amazon FSx for Windows File Server
+		* Local cache for frequently accessed data
+		* Windows natvice compatibility
+		* Useful for group file shares and home directories
+	* Volume Gateway
+		* Block Storage using iSCSI protobol backed by S3 
+		* Backed by EBS snapshots which can help restore on-premises volumes
+		* Cached volumes - low latency access to msot recent data
+		* Stored volumens - entire dataset is on premise schedules backups to S3
+	* Tape Gateway
+		* Some companies have backup processes usign physical tapes
+		* With tape gateway, companies use the same processes but in the cloud
+		* Virtual Tape Library (VTL) backed by Amazon S3 and Glacier
+		* Back up data using existing tape-based processes
+		* Works with leadin backup software vendors
+* Hardware appliance
+	* Using Storage Gateway mean we need on-premises virtualization
+	* Otherwise we can use Storage Gateway Hardware Appliance
+	* We can buy it amazon.com
+	* Works with File Gateway, Volume Gatewa, Tape Gateway
+	* Has required CPU, memory, network, SSD cache resources
+	* Helpful for daily NFS backups in small data centers
 
+## AWS Transfer Family
+* Fully managed service for file transfers into and out of Amazon S3 or Amazon EFS using the FTP protocol
+* Supported Protocols
+	* AWS Transfer for FTP
+	* AWS Transfer for FTPS
+	* AWS Transfer for SFTP
+* Managed infrastructure, scalable, reliable, highly available
+* Pay per provisioned endpoint per hour + data transfers in GB
+* Store and manager users credentials within the service
+* Integrate with existing authentication systems/
 
+## AWS DataSync
+* Move large amount of data to and from
+	* On-premises / other cloud to AWS - NFS, SB, S3 API - needs agent
+	* AWS to AWS - different sotrage services - no agent needed
+* Can synchronie to
+	* Amazon S3
+	* Amazon EFS
+	* Amazon FSx - Windows, Lustre, NetApp
+* Replication tasks can be scheduled hourly, daily, weekly
+* File permissions and metadata are preserved - NFS, POSIX, SMB
+* One agent can use 10 Gbps, can setup bandwidth
+* AWS Snowcone comes with agent pre-installed
 
+## NACL
+* Are like firewall which control traffic from and to subnets
+* One NACL per subnet, new subnetts are assigned the Default NACL
+* We define NACL rules
+	* Rules have number 1 - 32766, higher precedence with a lower number
+	* First rule match will drive the decision
+	* The last rule is an asterisk and denies a request in case of no rule match
+* Newly created NACLs will deny everything
+* NACL are great way of blocking a specific IP address at the subnet level
+### Default NACL
+* Accepts everything inbound/outbund with the subnet it's associated with
+* DO NOT modify the default NACL, instead create custom NACLs
+### Ephermal Ports
+* For any two endpoints to establish a connection, the must use ports
+* Clients connect to a defined port, and expect a response on an ephemeral port
+* Different operating systems use different port ranges
+	* MS Windows 10 - 49152 - 65535
+	* Many Linux Kernels - 32768 - 60999
+* Rules are evaulated in order when deciding whether to allow traffic, first level match wins
 
+## VPC Peering
+* Pribvately connect two VPCs using AWS network
+* Make them behave as if they were in the same network
+* Must not have overlapping CIDRs
+* VPC Peering connection is NOT transitive - must be established for each VPC that need to communicate with one another
+* We can create VPC peering connection between VPCs in different AWS accounts/regions
+* You can reference a security group in a peered VPC - works cross accounts - same region
 
+## VPC Endpoints
+* Every AWS Service is publicly exposed - public URL
+* VPC Endpoints allows to connect to AWS service using ptivate network insted of using the public internet
+* They are redundant and scale horizontally
+* They remove the need of IGW, NATGW to access AWS Services
+* In case of issues
+	* Check DN Setting resolution in VPC
+	* Check route tables
+### Types
+* Interface Endpoints - powered by PrivateLink
+	* Provision an ENI as an entry point
+	* Supports most AWS services
+	* $ per hour + $ per GB of data processed
+* Gateway Endpoints
+	* Provisions a fateway and must be used as a target ina route table - does not use security groups
+	* Supports S3 and DynamoDB
+	* Free
 
+## VPC Flow Logs
+* Capture information about IP traffic going into interfaces
+	* VPC Flow Logs
+	* Subnet Flow Logs
+	* Elastic Netowrk Interface Flow Logs
+* Helps to monitor & troubleshoot connectivity issues
+* Flow logs data can go to S3 / CloudWatch Logs
+* Captures netowrkin information from AWS managed interfaces - ELB, RDS, ElastiCache, Redshift, NAT GW
 
-## Incorrect practice questions
-![[Pasted image 20230120145907.png]]
-![[Pasted image 20230120150034.png]]
-![[Pasted image 20230120150255.png]]
-![[Pasted image 20230120152527.png]]
-![[Pasted image 20230120152931.png]]
-![[Pasted image 20230120153049.png]]
-![[Pasted image 20230120153257.png]]
-![[Pasted image 20230120153538.png]]
-![[Pasted image 20230120154828.png]]
-![[Pasted image 20230120154958.png]]
-![[Pasted image 20230120155141.png]]
-![[Pasted image 20230120155158.png]]
-![[Pasted image 20230120155353.png]]
-![[Pasted image 20230120161750.png]]
+## AWS Site-to-Site VPN
+* Virtual Private Gateway
+	* VPN concentrator on the AWS side of the VPN connection
+	* VGW is created and attached to teh VPC from which we want to create the Site-to-SIte VPN connections
+	* Possibility to customize the ASN
+* Customer Gateway
+	* Software application or physical device on sutomer side of the VPN connection
+* Route Propagation for Virtual Private Gateway in the route table that is associated with subnets
+* If we need to ping EC2 instances instances from on-premises, make sure we add the ICMP protocolin the inbound of the security groups
+### AWS VPN CloudHub
+* Provide secure communication between multiple sites, if we have multiple VPN connections
+
+## Direct Connect
+* Provides a dedicated private connection from a remote network of VPC
+* Dedicated connection must be setup between our DC and AWS Direct Connect location
+* We need to setup a Virtual Private Gateway on our VPC
+* Access public resources and private on same connection
+* Use cases
+	* Increase bandwidth rhoughput - working with large data sets - lower cost
+	* More consistent network experience - applications using real-time data feeds
+	* Hybrid environments - on prem + cloud
+* Support ipv4 and ipv6
+### Connection Types
+* Dedicated Connections
+	* Physical ethernet port dedicated to a customer
+	* Request made to AWS first, then completed by AWS Direct Connect Partners
+* Hosted Conenctions
+	* Connection request are made via AWS Direct Connect Partners
+	* Capacity can be added or removed on demand
+* Lead time are often longer than 1 month to establish a new connection
+### Ecryption
+* Data in transit is not encrypted but is private
+* AWS Direct Connect + VPN provides and IPsec-encrypted private connection
+* Good for an extra level of security, but slightly more complex to put in place
+
+## Transit Gateway
+* Transitive peering connection between thousand of VPC and on-premises, hub-and-spoke star connection
+* Regional resource, can work cross-regions
+* Share cross-account using Resource Access Manager - RAM
+* You can peer Transit Gateways across regions
+* Route Tables - limit which can talk with other VPC
+* Works with Direct Connect Gateway, VPN Connections
+* Support IP multicast - not supported by a ny other AWS service
+### Site-to-Site VPN ECMP
+* ECMP - Equal-cost multi-path routing
+* Routing strategy to allow to forward a packet over mutliple best path
+* Use case: create multiple Site-to-Site VPN connections to increase the bandwidth of out connections to AWS
+
+## Disaster Recovery Overview
+* Any event that has a negative impact on company's business continuity or finances is a disaster
+* Disaster Recovery is about preparing for and recovering from disaster
+* Kinds
+	* On-prmeise => On-premise - traditional DR - very expensive
+	* On-premise => AWS Cloud - hybrid recovery
+	* AWS Cloud Region A => AWS Cloud Region B
+* Need to define two terms
+	* RPO - Recovery Point Objective - how back in time we can recover data
+	* RTO - Recovery Time Objective - how long does it take to recover the systems
+### Strategies
+* Backup and Restore
+	* High RPO
+	* High RTO
+	* Cheap
+* Pilot Light
+	* Lower RPO
+	* Lower RTO
+	* Small version of the app is always running in the cloud
+	* Faster than backup and restore as critical systems are already up
+* Warm standby
+	* Decreased RPO
+	* Decreased RTO
+	* More costly
+	* Full systems is up and runninr but at minimum size
+	* Upon disaster we can scale to production load
+* Active-Active
+	* Very low RPO
+	* Very low RTO
+	* Very expensive
+	* Full production scale is running AWS on on-premise
+### Disaster Recovery Tips
+* Backup
+	* EBS Snapshots, RDS, automated backups/snapshots
+	* Regular pushes to S3 / S3 IA / Glacier, Lifecycle Policy, Cross Region Replication
+	* From On-Premise - Snowball or Storage Gateway
+* High Availability
+	* Use Route53 to migrate DNS over from Region to Region
+	* RDS Multi-AZ, ElastiCache Multi-AZ, EFS, S3
+	* Site to SiteVPN as a recovery from Direct Connect
+* Replication
+	* RDS replication, AWS Aurora + Global Databases
+	* Database replication from on-premise to RDS
+	* Storage Gateway
+* Automation
+	* Cloudformation / Elastic Beanstalk to re-create a whole new environment
+	* Recover / Reboot EC2 instances with CloudWatch if alarms fil
+	* AWS Lambda functions for customized automation
+* Chaos
+	* Netflix has a simian-army - randomly terminating EC2
+
+## AWS DMS
+* Database Migration Service
+* Quickly and securely migrate databases to AWS, resilient, self-healing
+* The Source database remains available during the migration
+* Supports
+	* Homogeneous migration - Oracle to Oracle
+	* Heterogenous migration - Microsoft SQL Server to Aurora
+* Continuous Data Replication using CDC - Change Data Capture
+* We must create an EC2 instance to perform the replication tasks
+* Sources
+	* On-premise and ec2 instances - Oracle, MS SQL, MySQL
+	* Azure - Azure SQL Database
+	* Amazon RDS - all including Aurora
+	* Amazon S3
+* Targets
+	* On-premise and ec2 instances - Oracle, MS SQL, MySQL
+	* Amazon RDS
+	* Amazon Redshift
+	* Amazon DynamoDB
+	* Amazon S3
+	* ElastiCache Service
+	* Kinesis Data Streams
+	* DocumentDB
+### AWS Schema Conversion Tool
+* SCT
+* Convert Database schema from one engine to another
+* Example - OLTP (SQL Server or Oracle) to MySQL, Aurora
+* Example - OLAP (Teradata or Oracle) to Amazon Redshift
+* There is no need to use SCT if DB with the same engine is migrated
+
+## RDS & Aurora MySQL Migrations
+* RDS MySQL to Aurora MySQL
+	* Option 1: DB Snapshots from RDS MySQL restored as MySQL restored as MySQL Aurora DB
+	* Option 2: Create an Aurora Read Replica from RDS MySQL and when the replication lag is 0, promote it as its own DB cluster
+* External MySQL to Aurora MySQL
+	* Option 1: Use Percona XtraBackup to create a file backup in Amazon S3
+		* Create an Aurora MySQL DB Amazon S3
+	* Option 2: Create an Aurora MySQL DB
+	* Use the mysqldump utility to migrate MySQL into Aurora
+* Use DMS if both databases are up and running
+
+## AWS Backup
+* Fully managed service
+* Centrally manage and automate backups across AWS services
+* No need to create custom scripts and manual processes
+* Supported services
+	* Amazon EC2 / Amazon EBS
+	* Amazon S3
+	* Amazon RDS / Amazon Aurora / Amazon DynamoDB
+	* Amazon DocumentDB / Amazon Neptune
+	* Amazon NFS / Amazon FSx
+	* AWS Storage Gateway - Volume Gateway
+* Support cross-region backups
+* Support cross-account backups
+* Support PITR for supported services (e.g. Amazon Aurora)
+* On-Demand and Scheduled backups
+* Tag-based backup policies
+* We create backup policies - known as Backup plans
+* Backup Frequency - every 12 hours, daily, weekly, monthly
+* Backup window
+* Transition to Cold Storage - Never, Days, Weeks, Months, Years
+* Retention Perion - Always, Days, Weeks, Months, Years
+* Data is backed-up to Amazon S3
+### Backup Vault Lock
+* Enforce WORM - Write Once Read Many state for all backups that we store in our AWS Backup Vault
+* Additional layer of defense to protect our backup against
+	* Inadvertent or malicious delete operation
+	* Updates that shorten or alter retention period
+* Even the root user cannot delete backups when enabled
+
+## AWS Application Discovery Service
+* Plan migration project by gathering information about on-premises data centers
+* Server utilization data and dependency mapping are important for migrations
+* Agentless Discover - AWS Agentless Discovery Connector - VM inventory, configruation, and performance history such as CPU, memory and disk usage
+* Agent-based Disvoery - AWS Application Discovery Agent - System configuration, system performance, running processes, and details of the network connections between systems
+* Resulting data can be viewed within AWS Migration Hub
+
+## AWS Application Migration Service
+* The evolution of CloudEndure Migration replacing AWS Server Migration Service
+* Lift-and-shift - rehost - solution which simplify applications to AWS
+* Converts on-premise virtual and physicals servers to run natively on AWS
+* Minimal downtime, reduced costs
+
+## Transferring Large Amount of Data to AWS
+* Example - transfer 200TB of data in the cloud - we have 100 Mbps internet connections
+* Over the internet / Site-to-Site VPN
+	* Immediate to setup
+	* Will take ~185 days
+* Over direct connect - 1 Gbps
+	* Long for the one-time setup - over a month
+	* Will take ~18,5 days
+* Over Snowball
+	* It will take 2 to 3 snowballs in parallel
+	* Takes about 1 week for an end-to-end transfer
+	* Can be combined with DMS
+* For on-going replication/transfers: Site-to-Site VPN or DX with DMS or DataSync
