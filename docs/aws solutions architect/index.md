@@ -3,7 +3,7 @@ hide:
  - navigation
 ---
 
-# AWS Solutions Architect
+# AWS Solutions Architect Associate
 
 ## S3
 
