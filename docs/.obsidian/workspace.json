@@ -18,8 +18,21 @@
                 "source": false
               }
             }
+          },
+          {
+            "id": "71fb0551d576c31f",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "aws developer associate/index.md",
+                "mode": "source",
+                "source": false
+              }
+            }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -147,7 +160,7 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "fbd57029a537820f",
+  "active": "71fb0551d576c31f",
   "lastOpenFiles": [
     "aws developer associate/index.md",
     "terraform associate/index.md",

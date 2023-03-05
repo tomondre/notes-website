@@ -15,4 +15,5 @@ nav:
   - Home: ./
   - HashiCorp Terraform Associate: ./terraform associate
   - AWS Cloud Practicioner: ./aws cloud practicioner
-  - AWS Solutions Architect: ./aws solutions architect
+  - AWS Solutions Architect Associate: ./aws solutions architect
+  - AWS Developer Associate: ./aws developer associate
