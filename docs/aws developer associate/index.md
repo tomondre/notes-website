@@ -1,3 +1,8 @@
+---
+hide:
+ - navigation
+---
+
  # AWS Developer Associate
 
 ## Elastic BeanStalk
